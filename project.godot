@@ -8,7 +8,7 @@ config/name="HouseMaster 3D — Projet Alexandre"
 config/description="Configurateur professionnel de maison 3D — 70 m² plain-pied, style moderne bois-noir"
 config/version="1.0.0"
 run/main_scene="res://scenes/Main.tscn"
-config/features=PackedStringArray("4.2")
+config/features=PackedStringArray("4.4")
 config/icon="res://icon.svg"
 
 [autoload]

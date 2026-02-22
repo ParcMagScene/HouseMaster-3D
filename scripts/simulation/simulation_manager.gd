@@ -85,12 +85,10 @@ func run_all_simulations() -> Array:
 		if report:
 			all_reports.append(report)
 	# Simulations transversales
-	var thermal_report = thermal_sim.simulate(graph)
-	reports["thermal"] = thermal_report
-	all_reports.append(thermal_report)
-	var energy_report = energy_sim.simulate(graph, reports)
-	reports["energy"] = energy_report
-	all_reports.append(energy_report)
+	var thermal_data := thermal_sim.simulate_house([])
+	reports["thermal"] = thermal_data
+	var energy_data := energy_sim.simulate(self)
+	reports["energy"] = energy_data
 	SIMULATION_COMPLETED.emit(all_reports)
 	return all_reports
 
@@ -139,14 +137,16 @@ func get_report(network_name: String) -> SimulationReport:
 func get_all_errors() -> Array:
 	var all_errors := []
 	for report in reports.values():
-		all_errors.append_array(report.errors)
+		if report is SimulationReport:
+			all_errors.append_array(report.errors)
 	return all_errors
 
 
 func get_all_warnings() -> Array:
 	var all_warnings := []
 	for report in reports.values():
-		all_warnings.append_array(report.warnings)
+		if report is SimulationReport:
+			all_warnings.append_array(report.warnings)
 	return all_warnings
 
 

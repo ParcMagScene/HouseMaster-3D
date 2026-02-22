@@ -232,6 +232,7 @@ func _setup_ui() -> void:
 	simulation_panel.visible = false
 	simulation_panel.position = editor_pos
 	canvas.add_child(simulation_panel)
+	simulation_panel.setup(simulation_manager)
 	
 	# Éditeur éclairage (caché par défaut)
 	lighting_editor = LightingEditorScript.new()
@@ -239,6 +240,7 @@ func _setup_ui() -> void:
 	lighting_editor.visible = false
 	lighting_editor.position = editor_pos
 	canvas.add_child(lighting_editor)
+	lighting_editor.setup(simulation_manager)
 	
 	print("🖥️ Interface utilisateur prête")
 
@@ -398,25 +400,26 @@ func _on_simulation_run_all() -> void:
 	main_ui.add_log("Simulation globale lancée")
 
 
-func _on_optimization_request(network_name: String) -> void:
-	simulation_manager.run_network_optimization(network_name)
-	main_ui.add_log("Optimisation réseau '%s'" % network_name)
+func _on_optimization_request(_network_name: String) -> void:
+	simulation_manager.run_network_optimization()
+	main_ui.add_log("Optimisation réseau lancée")
 
 
-func _on_cable_routing_request(network_name: String) -> void:
-	simulation_manager.run_cable_routing(network_name)
-	main_ui.add_log("Routage câbles '%s'" % network_name)
+func _on_cable_routing_request(_network_name: String) -> void:
+	simulation_manager.run_cable_routing()
+	main_ui.add_log("Routage câbles lancé")
 
 
-func _on_simulation_completed(report: RefCounted) -> void:
-	if report:
-		var summary := report.get_summary_text()
-		main_ui.add_log("[color=green]Simulation terminée[/color] — %s" % summary)
-		simulation_panel.update_report(report)
+func _on_simulation_completed(reports: Array) -> void:
+	for report in reports:
+		if report:
+			var summary := report.get_summary_text()
+			main_ui.add_log("[color=green]Simulation terminée[/color] — %s" % summary)
+	simulation_panel.update_results(reports)
 
 
-func _on_simulation_error(msg: String) -> void:
-	main_ui.add_log("[color=red]Erreur simulation : %s[/color]" % msg)
+func _on_simulation_error(network: String, msg: String) -> void:
+	main_ui.add_log("[color=red]Erreur simulation %s : %s[/color]" % [network, msg])
 
 
 func _toggle_editor(editor: Control) -> void:

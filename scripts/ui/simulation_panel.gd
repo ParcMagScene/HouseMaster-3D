@@ -195,9 +195,9 @@ func _on_cable_routing() -> void:
 	_set_status("[color=#FFB347]Routage en cours...[/color]")
 
 
-func _on_simulation_completed(network: String) -> void:
+func _on_simulation_completed(reports: Array) -> void:
 	progress_bar.value = 100
-	_set_status("[color=#4CAF50]✓ Simulation %s terminée[/color]" % network)
+	_set_status("[color=#4CAF50]✓ Simulation terminée (%d rapports)[/color]" % reports.size())
 	_refresh_results()
 
 
