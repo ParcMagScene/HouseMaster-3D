@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://main_scene"]
+
+[ext_resource type="Script" path="res://scripts/core/house.gd" id="1"]
+
+[node name="House" type="Node3D"]
+script = ExtResource("1")
+exterior_width = 10.5
+exterior_depth = 6.7
+wall_height = 2.5
+wall_thickness = 0.2

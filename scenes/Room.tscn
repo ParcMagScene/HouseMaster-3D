@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/room.gd" id="1"]
+
+[node name="Room" type="Node3D"]
+script = ExtResource("1")
+room_name = "Pièce"
+room_width = 3.0
+room_depth = 3.0
+room_height = 2.5
+room_type = "generic"

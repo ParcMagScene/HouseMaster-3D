@@ -1,0 +1,100 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+env:
+  GODOT_VERSION: "4.4"
+  GODOT_RELEASE: "stable"
+  PROJECT_NAME: "HouseMaster3D"
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    name: Export ${{ matrix.platform }}
+    strategy:
+      matrix:
+        include:
+          - platform: windows
+            preset: "Windows Desktop"
+            extension: ".exe"
+          - platform: linux
+            preset: "Linux/X11"
+            extension: ".x86_64"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache Godot
+        uses: actions/cache@v4
+        with:
+          path: ~/godot
+          key: godot-${{ env.GODOT_VERSION }}-${{ env.GODOT_RELEASE }}-linux
+
+      - name: Installer Godot + Templates
+        run: |
+          mkdir -p ~/godot ~/.local/share/godot/export_templates/${GODOT_VERSION}.${GODOT_RELEASE}
+          # Godot
+          if [ ! -f ~/godot/godot ]; then
+            wget -q "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-${GODOT_RELEASE}/Godot_v${GODOT_VERSION}-${GODOT_RELEASE}_linux.x86_64.zip" -O /tmp/godot.zip
+            unzip -o /tmp/godot.zip -d ~/godot
+            mv ~/godot/Godot_v${GODOT_VERSION}-${GODOT_RELEASE}_linux.x86_64 ~/godot/godot
+            chmod +x ~/godot/godot
+          fi
+          # Templates
+          TEMPLATES_DIR=~/.local/share/godot/export_templates/${GODOT_VERSION}.${GODOT_RELEASE}
+          if [ ! -f "$TEMPLATES_DIR/version.txt" ]; then
+            wget -q "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-${GODOT_RELEASE}/Godot_v${GODOT_VERSION}-${GODOT_RELEASE}_export_templates.tpz" -O /tmp/templates.tpz
+            unzip -o /tmp/templates.tpz -d /tmp/templates
+            mv /tmp/templates/templates/* "$TEMPLATES_DIR/"
+          fi
+
+      - name: Import projet
+        run: |
+          ~/godot/godot --headless --import --quit 2>/dev/null || true
+          sleep 2
+
+      - name: Exécuter les tests
+        run: |
+          ~/godot/godot --headless -s tests/test_runner.gd --quit-after 120
+        timeout-minutes: 5
+
+      - name: Export ${{ matrix.platform }}
+        run: |
+          mkdir -p build/${{ matrix.platform }}
+          ~/godot/godot --headless --export-release "${{ matrix.preset }}" "build/${{ matrix.platform }}/${PROJECT_NAME}${{ matrix.extension }}"
+
+      - name: Upload artefact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.PROJECT_NAME }}-${{ matrix.platform }}-${{ github.ref_name }}
+          path: build/${{ matrix.platform }}/
+
+  release:
+    needs: export
+    runs-on: ubuntu-latest
+    name: Créer Release GitHub
+
+    steps:
+      - name: Télécharger artefacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+
+      - name: Compresser
+        run: |
+          cd artifacts
+          for dir in */; do
+            zip -r "${dir%/}.zip" "$dir"
+          done
+
+      - name: Créer Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/*.zip
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

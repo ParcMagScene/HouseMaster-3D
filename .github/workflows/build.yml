@@ -1,0 +1,71 @@
+name: Build & Tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  GODOT_VERSION: "4.4"
+  GODOT_RELEASE: "stable"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Tests Godot ${{ env.GODOT_VERSION }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache Godot
+        uses: actions/cache@v4
+        with:
+          path: ~/godot
+          key: godot-${{ env.GODOT_VERSION }}-${{ env.GODOT_RELEASE }}-linux
+
+      - name: Télécharger Godot
+        run: |
+          if [ ! -f ~/godot/godot ]; then
+            mkdir -p ~/godot
+            GODOT_URL="https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-${GODOT_RELEASE}/Godot_v${GODOT_VERSION}-${GODOT_RELEASE}_linux.x86_64.zip"
+            wget -q "$GODOT_URL" -O /tmp/godot.zip
+            unzip -o /tmp/godot.zip -d ~/godot
+            mv ~/godot/Godot_v${GODOT_VERSION}-${GODOT_RELEASE}_linux.x86_64 ~/godot/godot
+            chmod +x ~/godot/godot
+          fi
+
+      - name: Import projet
+        run: |
+          ~/godot/godot --headless --import --quit 2>/dev/null || true
+          sleep 2
+
+      - name: Exécuter les tests
+        run: |
+          ~/godot/godot --headless -s tests/test_runner.gd --quit-after 120
+        timeout-minutes: 5
+
+      - name: Vérifier emit_signal obsolètes
+        run: |
+          COUNT=$(grep -rn "emit_signal(" scripts/ --include="*.gd" | wc -l)
+          if [ "$COUNT" -gt 0 ]; then
+            echo "::error::$COUNT appels emit_signal() obsolètes trouvés"
+            grep -rn "emit_signal(" scripts/ --include="*.gd"
+            exit 1
+          fi
+          echo "✅ Aucun emit_signal() obsolète"
+
+      - name: Vérifier syntaxe GDScript
+        run: |
+          ERRORS=0
+          for f in $(find scripts/ -name "*.gd"); do
+            if ! ~/godot/godot --headless --check-only -s "$f" 2>/dev/null; then
+              echo "::error file=$f::Erreur de syntaxe dans $f"
+              ERRORS=$((ERRORS + 1))
+            fi
+          done
+          if [ "$ERRORS" -gt 0 ]; then
+            exit 1
+          fi
+          echo "✅ Syntaxe OK"

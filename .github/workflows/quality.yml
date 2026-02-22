@@ -1,0 +1,106 @@
+name: Qualité du code
+
+on:
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - "scripts/**"
+      - "tests/**"
+
+env:
+  GODOT_VERSION: "4.4"
+  GODOT_RELEASE: "stable"
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    name: Analyse qualité
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Vérifier emit_signal obsolètes
+        run: |
+          COUNT=$(grep -rn "emit_signal(" scripts/ --include="*.gd" | wc -l)
+          if [ "$COUNT" -gt 0 ]; then
+            echo "::error::$COUNT appels emit_signal() obsolètes"
+            grep -rn "emit_signal(" scripts/ --include="*.gd"
+            exit 1
+          fi
+          echo "✅ Signaux modernes"
+
+      - name: Vérifier conventions nommage signaux
+        run: |
+          ISSUES=0
+          while IFS= read -r line; do
+            FILE=$(echo "$line" | cut -d: -f1)
+            LINENO=$(echo "$line" | cut -d: -f2)
+            CONTENT=$(echo "$line" | cut -d: -f3-)
+            SIGNAME=$(echo "$CONTENT" | sed 's/.*signal \([^ (]*\).*/\1/')
+            UPPER=$(echo "$SIGNAME" | tr '[:lower:]' '[:upper:]')
+            if [ "$SIGNAME" != "$UPPER" ]; then
+              echo "::warning file=$FILE,line=$LINENO::Signal '$SIGNAME' devrait être SCREAMING_SNAKE_CASE"
+              ISSUES=$((ISSUES + 1))
+            fi
+          done < <(grep -rn "^signal " scripts/ --include="*.gd")
+          if [ "$ISSUES" -gt 0 ]; then
+            echo "⚠️ $ISSUES signal(s) non conformes"
+          else
+            echo "✅ Conventions signaux OK"
+          fi
+
+      - name: Vérifier longueur de lignes
+        run: |
+          LONG_LINES=$(grep -rn '.\{121,\}' scripts/ --include="*.gd" | wc -l)
+          if [ "$LONG_LINES" -gt 0 ]; then
+            echo "::warning::$LONG_LINES lignes > 120 caractères"
+            grep -rn '.\{121,\}' scripts/ --include="*.gd" | head -20
+          else
+            echo "✅ Longueur de lignes OK"
+          fi
+
+      - name: Vérifier trailing whitespace
+        run: |
+          TRAILING=$(grep -rn ' $' scripts/ --include="*.gd" | wc -l)
+          if [ "$TRAILING" -gt 0 ]; then
+            echo "::warning::$TRAILING lignes avec espaces en fin"
+          else
+            echo "✅ Pas de trailing whitespace"
+          fi
+
+      - name: Vérifier print() dans le code source
+        run: |
+          PRINTS=$(grep -rn '^\s*print(' scripts/ --include="*.gd" | wc -l)
+          if [ "$PRINTS" -gt 0 ]; then
+            echo "::warning::$PRINTS appels print() trouvés (utiliser un logger)"
+            grep -rn '^\s*print(' scripts/ --include="*.gd" | head -20
+          else
+            echo "✅ Pas de print() dans le code source"
+          fi
+
+      - name: Vérifier structure du projet
+        run: |
+          MISSING=0
+          for DIR in scripts/core scripts/modules scripts/ui scenes materials; do
+            if [ ! -d "$DIR" ]; then
+              echo "::error::Dossier manquant: $DIR"
+              MISSING=$((MISSING + 1))
+            fi
+          done
+          for FILE in scripts/core/house.gd scripts/core/room.gd scripts/core/wall.gd scripts/core/material.gd; do
+            if [ ! -f "$FILE" ]; then
+              echo "::error::Fichier manquant: $FILE"
+              MISSING=$((MISSING + 1))
+            fi
+          done
+          for FILE in scripts/modules/plumbing_module.gd scripts/modules/electricity_module.gd scripts/modules/network_module.gd scripts/modules/domotics_module.gd; do
+            if [ ! -f "$FILE" ]; then
+              echo "::error::Fichier manquant: $FILE"
+              MISSING=$((MISSING + 1))
+            fi
+          done
+          if [ "$MISSING" -gt 0 ]; then
+            exit 1
+          fi
+          echo "✅ Structure du projet conforme"
