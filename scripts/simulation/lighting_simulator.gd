@@ -79,7 +79,7 @@ func simulate(graph: SimulationGraph) -> SimulationReport:
 				# Efficacité
 				var efficacy = flux / power if power > 0 else 0.0
 				if efficacy < MIN_EFFICACY_LMW and power > 0:
-					report.add_suggestion("LIGHT_LOW_EFFICACY", "Luminaire '%s' : %.0f lm/W, LED recommandé (>%.0f)" % [node.label, efficacy, MIN_EFFICACY_LMW], node.id)
+					report.add_suggestion("LIGHT_LOW_EFFICACY", "Luminaire '%s' : %.0f lm/W, LED recommandé (>%.0f)" % [node.label, efficacy, MIN_EFFICACY_LMW], {"node_id": node.id})
 
 				# Température couleur
 				var color_temp = node.properties.get("color_temp_k", 4000)

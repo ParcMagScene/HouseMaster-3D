@@ -130,7 +130,7 @@ func run_network_optimization() -> Dictionary:
 	return network_optimizer.optimize_paths(graph, "")
 
 
-func get_report(network_name: String) -> SimulationReport:
+func get_report(network_name: String):
 	return reports.get(network_name, null)
 
 
@@ -153,7 +153,10 @@ func get_all_warnings() -> Array:
 func to_dict() -> Dictionary:
 	var reports_data := {}
 	for key in reports:
-		reports_data[key] = reports[key].to_dict()
+		if reports[key] is SimulationReport:
+			reports_data[key] = reports[key].to_dict()
+		elif reports[key] is Dictionary:
+			reports_data[key] = reports[key]
 	return {
 		"graph": graph.to_dict(),
 		"reports": reports_data,

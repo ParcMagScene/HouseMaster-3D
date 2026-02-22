@@ -248,6 +248,8 @@ func _refresh_metrics() -> void:
 		var report = simulation_manager_ref.get_report(net)
 		if report == null:
 			continue
+		if not (report is SimulationReport):
+			continue
 		var metrics = report.metrics
 		if metrics.size() == 0:
 			continue

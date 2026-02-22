@@ -117,7 +117,7 @@ func _generate_floor() -> void:
 	mesh_instance.mesh = plane_mesh
 	mesh_instance.position = Vector3(exterior_width / 2.0, 0.0, exterior_depth / 2.0)
 	var mat = StandardMaterial3D.new()
-	mat.albedo_color = Color(0.85, 0.82, 0.75)
+	mat.albedo_color = Color(0.75, 0.70, 0.62)
 	mesh_instance.material_override = mat
 	add_child(mesh_instance)
 

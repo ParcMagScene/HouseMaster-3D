@@ -63,17 +63,28 @@ func _ready() -> void:
 	print("  Maison 70 m² | Godot 4")
 	print("═══════════════════════════════════════")
 	
+	print("[INIT] 1/9 — Environnement...")
 	_setup_environment()
+	print("[INIT] 2/9 — Éclairage...")
 	_setup_lighting()
+	print("[INIT] 3/9 — Caméra...")
 	_setup_camera()
+	print("[INIT] 4/9 — Maison...")
 	_setup_house()
+	print("[INIT] 5/9 — Modules techniques...")
 	_setup_modules()
+	print("[INIT] 6/9 — Systèmes...")
 	_setup_systems()
+	print("[INIT] 7/9 — Interface utilisateur...")
 	_setup_ui()
+	print("[INIT] 8/9 — Connexion signaux...")
 	_connect_signals()
+	print("[INIT] 9/9 — Grille & debug...")
 	_setup_grid()
 	
-	print("✅ Initialisation terminée.")
+	print("✅ Initialisation terminée — %d enfants dans la scène" % get_child_count())
+	print("📷 Caméra position : %s" % str(camera.global_position))
+	print("🏠 Maison : %d pièces, %d murs" % [house.rooms.size(), house.walls.size()])
 
 
 func _setup_environment() -> void:
@@ -81,15 +92,14 @@ func _setup_environment() -> void:
 	environment.name = "WorldEnvironment"
 	var env = Environment.new()
 	env.background_mode = Environment.BG_COLOR
-	env.background_color = Color(0.75, 0.8, 0.85)
+	env.background_color = Color(0.18, 0.20, 0.22)
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	env.ambient_light_color = Color(0.6, 0.6, 0.65)
-	env.ambient_light_energy = 0.5
+	env.ambient_light_color = Color(0.7, 0.7, 0.75)
+	env.ambient_light_energy = 0.8
 	env.tonemap_mode = Environment.TONE_MAPPER_ACES
-	env.ssao_enabled = true
-	env.ssil_enabled = true
-	env.glow_enabled = true
-	env.glow_intensity = 0.3
+	env.ssao_enabled = false
+	env.ssil_enabled = false
+	env.glow_enabled = false
 	environment.environment = env
 	add_child(environment)
 
@@ -98,11 +108,20 @@ func _setup_lighting() -> void:
 	sun = DirectionalLight3D.new()
 	sun.name = "Sun"
 	sun.rotation_degrees = Vector3(-45, -30, 0)
-	sun.light_energy = 1.2
-	sun.light_color = Color(1.0, 0.97, 0.9)
+	sun.light_energy = 1.5
+	sun.light_color = Color(1.0, 0.97, 0.92)
 	sun.shadow_enabled = true
 	sun.directional_shadow_max_distance = 50.0
 	add_child(sun)
+	
+	# Lumière de remplissage pour mieux voir la géométrie
+	var fill_light = DirectionalLight3D.new()
+	fill_light.name = "FillLight"
+	fill_light.rotation_degrees = Vector3(-30, 150, 0)
+	fill_light.light_energy = 0.4
+	fill_light.light_color = Color(0.8, 0.85, 1.0)
+	fill_light.shadow_enabled = false
+	add_child(fill_light)
 
 
 func _setup_camera() -> void:
@@ -148,8 +167,8 @@ func _setup_systems() -> void:
 	# Sélection
 	selection_manager = SelectionManagerScript.new()
 	selection_manager.name = "SelectionManager"
-	selection_manager.setup(camera)
 	add_child(selection_manager)
+	selection_manager.setup(camera)
 	
 	# Undo/Redo
 	undo_redo = UndoRedoManagerScript.new()
@@ -159,14 +178,14 @@ func _setup_systems() -> void:
 	# Sauvegarde
 	save_manager = SaveManagerScript.new()
 	save_manager.name = "SaveManager"
-	save_manager.setup(house, plumbing, electricity, network, domotics)
 	add_child(save_manager)
+	save_manager.setup(house, plumbing, electricity, network, domotics)
 	
 	# Simulation
 	simulation_manager = SimulationManagerScript.new()
 	simulation_manager.name = "SimulationManager"
-	simulation_manager.setup(house, plumbing, electricity, network, domotics)
 	add_child(simulation_manager)
+	simulation_manager.setup(house, plumbing, electricity, network, domotics)
 	
 	print("⚙️ Systèmes initialisés")
 
@@ -288,15 +307,31 @@ func _setup_grid() -> void:
 	plane.subdivide_width = 60
 	plane.subdivide_depth = 60
 	grid.mesh = plane
-	grid.position = Vector3(5.25, -0.01, 3.35)
+	grid.position = Vector3(5.25, -0.02, 3.35)
 	
 	var mat = StandardMaterial3D.new()
-	mat.albedo_color = Color(0.5, 0.5, 0.5, 0.15)
+	mat.albedo_color = Color(0.3, 0.3, 0.3, 0.25)
 	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	mat.cull_mode = BaseMaterial3D.CULL_DISABLED
 	grid.material_override = mat
 	
 	add_child(grid)
+	
+	# Cube de test visible pour confirmer le rendu 3D
+	var debug_cube = MeshInstance3D.new()
+	debug_cube.name = "DebugCube"
+	var cube_mesh = BoxMesh.new()
+	cube_mesh.size = Vector3(0.5, 0.5, 0.5)
+	debug_cube.mesh = cube_mesh
+	debug_cube.position = Vector3(5.25, 0.25, 3.35)
+	var cube_mat = StandardMaterial3D.new()
+	cube_mat.albedo_color = Color(1.0, 0.3, 0.1)
+	cube_mat.emission_enabled = true
+	cube_mat.emission = Color(1.0, 0.3, 0.1)
+	cube_mat.emission_energy_multiplier = 0.5
+	debug_cube.material_override = cube_mat
+	add_child(debug_cube)
+	print("🟧 Cube de test ajouté au centre de la maison")
 
 
 func _input(event: InputEvent) -> void:

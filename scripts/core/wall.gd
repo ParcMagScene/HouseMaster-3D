@@ -48,7 +48,7 @@ func generate_mesh() -> void:
 	var mat = wall_material
 	if not mat:
 		mat = StandardMaterial3D.new()
-		mat.albedo_color = Color(0.92, 0.90, 0.85)
+		mat.albedo_color = Color(0.82, 0.78, 0.72)
 	mesh_instance.material_override = mat
 	
 	add_child(mesh_instance)
