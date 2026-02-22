@@ -1,4 +1,4 @@
-extends Node
+extends RefCounted
 
 ## SimulationNode — Nœud de base du graphe de simulation
 ## Représente un équipement, un point de connexion ou un nœud logique

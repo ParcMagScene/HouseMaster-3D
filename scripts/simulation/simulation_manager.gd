@@ -119,15 +119,15 @@ func run_simulation(network_name: String) -> SimulationReport:
 
 
 func run_cable_routing() -> Dictionary:
-	return cable_router.route(graph)
+	return cable_router.route_cables(graph, "", [])
 
 
 func run_water_routing() -> Dictionary:
-	return water_router.route(graph)
+	return water_router.route_water(graph, [])
 
 
 func run_network_optimization() -> Dictionary:
-	return network_optimizer.optimize(graph)
+	return network_optimizer.optimize_paths(graph, "")
 
 
 func get_report(network_name: String) -> SimulationReport:

@@ -85,7 +85,7 @@ func _setup_environment() -> void:
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	env.ambient_light_color = Color(0.6, 0.6, 0.65)
 	env.ambient_light_energy = 0.5
-	env.tonemap_mode = 3  # ACES
+	env.tonemap_mode = Environment.TONE_MAPPER_ACES
 	env.ssao_enabled = true
 	env.ssil_enabled = true
 	env.glow_enabled = true
@@ -180,8 +180,8 @@ func _setup_ui() -> void:
 	# UI principale
 	main_ui = MainUIScript.new()
 	main_ui.name = "MainUI"
-	main_ui.setup(house)
 	canvas.add_child(main_ui)
+	main_ui.setup(house)
 	
 	# Position des éditeurs : panneau flottant centré-droit
 	var editor_pos := Vector2(260, 70)
@@ -189,42 +189,42 @@ func _setup_ui() -> void:
 	# Éditeur pièces (caché par défaut)
 	room_editor = RoomEditorScript.new()
 	room_editor.name = "RoomEditor"
-	room_editor.setup(house)
 	room_editor.visible = false
 	room_editor.position = editor_pos
 	canvas.add_child(room_editor)
+	room_editor.setup(house)
 	
 	# Éditeur plomberie (caché par défaut)
 	plumbing_editor = PlumbingEditorScript.new()
 	plumbing_editor.name = "PlumbingEditor"
-	plumbing_editor.setup(plumbing)
 	plumbing_editor.visible = false
 	plumbing_editor.position = editor_pos
 	canvas.add_child(plumbing_editor)
+	plumbing_editor.setup(plumbing)
 	
 	# Éditeur électricité (caché par défaut)
 	electricity_editor = ElectricityEditorScript.new()
 	electricity_editor.name = "ElectricityEditor"
-	electricity_editor.setup(electricity)
 	electricity_editor.visible = false
 	electricity_editor.position = editor_pos
 	canvas.add_child(electricity_editor)
+	electricity_editor.setup(electricity)
 	
 	# Éditeur réseau (caché par défaut)
 	network_editor = NetworkEditorScript.new()
 	network_editor.name = "NetworkEditor"
-	network_editor.setup(network)
 	network_editor.visible = false
 	network_editor.position = editor_pos
 	canvas.add_child(network_editor)
+	network_editor.setup(network)
 	
 	# Éditeur domotique (caché par défaut)
 	domotics_editor = DomoticsEditorScript.new()
 	domotics_editor.name = "DomoticsEditor"
-	domotics_editor.setup(domotics)
 	domotics_editor.visible = false
 	domotics_editor.position = editor_pos
 	canvas.add_child(domotics_editor)
+	domotics_editor.setup(domotics)
 	
 	# Panneau simulation (caché par défaut)
 	simulation_panel = SimulationPanelScript.new()
@@ -274,6 +274,9 @@ func _connect_signals() -> void:
 	simulation_panel.CABLE_ROUTING_REQUEST.connect(_on_cable_routing_request)
 	simulation_manager.SIMULATION_COMPLETED.connect(_on_simulation_completed)
 	simulation_manager.SIMULATION_ERROR.connect(_on_simulation_error)
+	
+	# Rafraîchir la hiérarchie maintenant que les signaux sont connectés
+	main_ui._refresh_hierarchy()
 
 
 func _setup_grid() -> void:

@@ -1,4 +1,4 @@
-extends Node
+extends RefCounted
 
 ## LightingNode — Nœud luminaire avec propriétés d'éclairage
 ## Type, puissance, température couleur, angle, dimmer
