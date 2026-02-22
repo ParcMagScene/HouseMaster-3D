@@ -56,35 +56,68 @@ var simulation_manager: Node = null
 var sun: DirectionalLight3D = null
 var environment: WorldEnvironment = null
 
+# --- Debug à l'écran ---
+var debug_label: Label = null
+var debug_messages: Array[String] = []
+
+
+func _add_debug(msg: String) -> void:
+	print(msg)
+	debug_messages.append(msg)
+	if debug_label:
+		debug_label.text = "\n".join(debug_messages)
+
 
 func _ready() -> void:
-	print("═══════════════════════════════════════")
-	print("  HouseMaster 3D — Projet Alexandre")
-	print("  Maison 70 m² | Godot 4")
-	print("═══════════════════════════════════════")
+	# Créer le label debug en premier — visible immédiatement à l'écran
+	var debug_canvas = CanvasLayer.new()
+	debug_canvas.name = "DebugCanvas"
+	debug_canvas.layer = 100  # toujours au-dessus de tout
+	add_child(debug_canvas)
 	
-	print("[INIT] 1/9 — Environnement...")
+	debug_label = Label.new()
+	debug_label.name = "DebugLabel"
+	debug_label.text = "HouseMaster 3D — Démarrage..."
+	debug_label.position = Vector2(20, 20)
+	debug_label.size = Vector2(600, 400)
+	debug_label.add_theme_font_size_override("font_size", 16)
+	debug_label.add_theme_color_override("font_color", Color(0.0, 1.0, 0.3))
+	debug_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.8))
+	debug_label.add_theme_constant_override("shadow_offset_x", 1)
+	debug_label.add_theme_constant_override("shadow_offset_y", 1)
+	debug_canvas.add_child(debug_label)
+	
+	_add_debug("═══ HouseMaster 3D ═══")
+	_add_debug("Maison 70 m² | Godot 4")
+	
+	_add_debug("[1/9] Environnement...")
 	_setup_environment()
-	print("[INIT] 2/9 — Éclairage...")
+	_add_debug("[2/9] Éclairage...")
 	_setup_lighting()
-	print("[INIT] 3/9 — Caméra...")
+	_add_debug("[3/9] Caméra...")
 	_setup_camera()
-	print("[INIT] 4/9 — Maison...")
+	_add_debug("[4/9] Maison...")
 	_setup_house()
-	print("[INIT] 5/9 — Modules techniques...")
+	_add_debug("[5/9] Modules techniques...")
 	_setup_modules()
-	print("[INIT] 6/9 — Systèmes...")
+	_add_debug("[6/9] Systèmes...")
 	_setup_systems()
-	print("[INIT] 7/9 — Interface utilisateur...")
+	_add_debug("[7/9] Interface UI...")
 	_setup_ui()
-	print("[INIT] 8/9 — Connexion signaux...")
+	_add_debug("[8/9] Signaux...")
 	_connect_signals()
-	print("[INIT] 9/9 — Grille & debug...")
+	_add_debug("[9/9] Grille & debug...")
 	_setup_grid()
 	
-	print("✅ Initialisation terminée — %d enfants dans la scène" % get_child_count())
-	print("📷 Caméra position : %s" % str(camera.global_position))
-	print("🏠 Maison : %d pièces, %d murs" % [house.rooms.size(), house.walls.size()])
+	_add_debug("OK — %d pièces, %d murs" % [house.rooms.size(), house.walls.size()])
+	_add_debug("Caméra: %s" % str(camera.global_position))
+	_add_debug("Enfants scène: %d" % get_child_count())
+	
+	# Effacer le debug après 8 secondes
+	get_tree().create_timer(8.0).timeout.connect(func(): 
+		if debug_label:
+			debug_label.text = "F1-F6: éditeurs | Espace: mode caméra | Molette: zoom"
+	)
 
 
 func _setup_environment() -> void:
