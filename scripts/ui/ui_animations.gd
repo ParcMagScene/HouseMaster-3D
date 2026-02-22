@@ -1,5 +1,5 @@
-extends Node
 class_name UIAnimations
+extends RefCounted
 
 ## Animations UI — HouseMaster 3D
 ## Transitions douces, effets de survol, apparition/disparition panneaux

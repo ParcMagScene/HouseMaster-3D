@@ -484,7 +484,7 @@ func _on_cable_routing_request(_network_name: String) -> void:
 func _on_simulation_completed(reports: Array) -> void:
 	for report in reports:
 		if report:
-			var summary := report.get_summary_text()
+			var summary = report.get_summary_text()
 			main_ui.add_log("[color=green]Simulation terminée[/color] — %s" % summary)
 	simulation_panel.update_results(reports)
 
@@ -494,8 +494,8 @@ func _on_simulation_error(network: String, msg: String) -> void:
 
 
 func _toggle_editor(editor: Control) -> void:
-	var editors := [plumbing_editor, electricity_editor, network_editor, domotics_editor, room_editor, simulation_panel, lighting_editor]
-	var should_show := not editor.visible
+	var editors = [plumbing_editor, electricity_editor, network_editor, domotics_editor, room_editor, simulation_panel, lighting_editor]
+	var should_show = not editor.visible
 	
 	# Masquer tous les éditeurs avec animation
 	for e in editors:

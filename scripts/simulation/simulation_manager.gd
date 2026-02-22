@@ -85,9 +85,9 @@ func run_all_simulations() -> Array:
 		if report:
 			all_reports.append(report)
 	# Simulations transversales
-	var thermal_data := thermal_sim.simulate_house([])
+	var thermal_data = thermal_sim.simulate_house([])
 	reports["thermal"] = thermal_data
-	var energy_data := energy_sim.simulate(self)
+	var energy_data = energy_sim.simulate(self)
 	reports["energy"] = energy_data
 	SIMULATION_COMPLETED.emit(all_reports)
 	return all_reports

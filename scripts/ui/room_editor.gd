@@ -155,7 +155,7 @@ func edit_room(room: Node3D) -> void:
 		width_input.value = room.room_width
 		depth_input.value = room.room_depth
 		height_input.value = room.room_height
-		var type_idx := room_types.find(room.room_type)
+		var type_idx = room_types.find(room.room_type)
 		if type_idx >= 0:
 			type_selector.selected = type_idx
 		_update_surface()
@@ -190,7 +190,7 @@ func _on_apply() -> void:
 
 func _on_delete() -> void:
 	if current_room and house_ref:
-		var room_name := current_room.room_name
+		var room_name = current_room.room_name
 		house_ref.remove_room(current_room)
 		current_room = null
 		visible = false

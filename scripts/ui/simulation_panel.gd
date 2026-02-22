@@ -271,8 +271,8 @@ func _refresh_energy() -> void:
 
 	# Utiliser EnergySimulator si disponible
 	var energy_text := "[b]Bilan estimé[/b]\n"
-	var total_errors := simulation_manager_ref.get_all_errors().size()
-	var total_warnings := simulation_manager_ref.get_all_warnings().size()
+	var total_errors = simulation_manager_ref.get_all_errors().size()
+	var total_warnings = simulation_manager_ref.get_all_warnings().size()
 
 	if total_errors == 0:
 		energy_text += "[color=#4CAF50]✓ Installation conforme[/color]\n"

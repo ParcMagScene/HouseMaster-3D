@@ -137,7 +137,7 @@ func _build_ui() -> void:
 func _on_add_pipe() -> void:
 	if not plumbing_ref:
 		return
-	var type := pipe_types[pipe_type.selected]
+	var type = pipe_types[pipe_type.selected]
 	var diameter := pipe_diameter.value
 	plumbing_ref.add_pipe(type, Vector3(0, 0.1, 0), Vector3(2, 0.08, 0), diameter, "")
 	PIPE_ADDED_REQUEST.emit({"type": type, "diameter": diameter})
@@ -146,8 +146,8 @@ func _on_add_pipe() -> void:
 func _on_add_fixture() -> void:
 	if not plumbing_ref:
 		return
-	var type := fixture_types[fixture_type.selected]
-	var room := room_selector.get_item_text(room_selector.selected)
+	var type = fixture_types[fixture_type.selected]
+	var room = room_selector.get_item_text(room_selector.selected)
 	plumbing_ref.add_fixture(type, Vector3(1, 0, 1), room)
 	FIXTURE_ADDED_REQUEST.emit({"type": type, "room": room})
 
@@ -155,7 +155,7 @@ func _on_add_fixture() -> void:
 func _on_validate() -> void:
 	if not plumbing_ref:
 		return
-	var errors := plumbing_ref.validate()
+	var errors = plumbing_ref.validate()
 	validation_label.clear()
 	if errors.is_empty():
 		validation_label.append_text("[color=#5cb85c]Installation conforme[/color]")

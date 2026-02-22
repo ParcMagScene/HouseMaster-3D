@@ -243,11 +243,11 @@ func _build_ui() -> void:
 func _on_add_sensor() -> void:
 	if not domotics_ref:
 		return
-	var type := sensor_types[sensor_type.selected]
-	var room := room_selector.get_item_text(room_selector.selected)
-	var label_text := label_input.text
+	var type = sensor_types[sensor_type.selected]
+	var room = room_selector.get_item_text(room_selector.selected)
+	var label_text = label_input.text
 
-	var idx := domotics_ref.add_sensor(type, Vector3(1, 2.0, 1), room, label_text)
+	var idx = domotics_ref.add_sensor(type, Vector3(1, 2.0, 1), room, label_text)
 	scenario_sensor_selector.add_item(label_text if label_text != "" else "%s_%d" % [type, idx])
 	SENSOR_ADDED_REQUEST.emit({"type": type, "room": room})
 
@@ -255,11 +255,11 @@ func _on_add_sensor() -> void:
 func _on_add_actuator() -> void:
 	if not domotics_ref:
 		return
-	var type := actuator_types[actuator_type.selected]
-	var room := room_selector.get_item_text(room_selector.selected)
-	var label_text := label_input.text
+	var type = actuator_types[actuator_type.selected]
+	var room = room_selector.get_item_text(room_selector.selected)
+	var label_text = label_input.text
 
-	var idx := domotics_ref.add_actuator(type, Vector3(1, 1.5, 1), room, label_text)
+	var idx = domotics_ref.add_actuator(type, Vector3(1, 1.5, 1), room, label_text)
 	scenario_actuator_selector.add_item(label_text if label_text != "" else "%s_%d" % [type, idx])
 	ACTUATOR_ADDED_REQUEST.emit({"type": type, "room": room})
 
@@ -268,16 +268,16 @@ func _on_add_scenario() -> void:
 	if not domotics_ref:
 		return
 
-	var s_name := scenario_name_input.text
+	var s_name = scenario_name_input.text
 	if s_name == "":
 		s_name = "Scénario %d" % (domotics_ref.scenarios.size() + 1)
 
-	var sensor_idx := scenario_sensor_selector.selected - 1
-	var actuator_idx := scenario_actuator_selector.selected - 1
-	var op := operators[scenario_operator.selected]
-	var value_text := scenario_value_input.text
-	var action := actions[scenario_action.selected]
-	var time_cond := time_condition_input.text
+	var sensor_idx = scenario_sensor_selector.selected - 1
+	var actuator_idx = scenario_actuator_selector.selected - 1
+	var op = operators[scenario_operator.selected]
+	var value_text = scenario_value_input.text
+	var action = actions[scenario_action.selected]
+	var time_cond = time_condition_input.text
 
 	# Parser la valeur
 	var value: Variant = null
@@ -303,7 +303,7 @@ func _on_add_scenario() -> void:
 func _on_test_scenarios() -> void:
 	if not domotics_ref:
 		return
-	var triggered := domotics_ref.evaluate_scenarios()
+	var triggered = domotics_ref.evaluate_scenarios()
 	validation_label.clear()
 	if triggered.is_empty():
 		validation_label.append_text("[color=#888888]Aucun scénario déclenché[/color]")

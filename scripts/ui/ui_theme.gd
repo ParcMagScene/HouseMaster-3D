@@ -1,9 +1,8 @@
-extends Node
+class_name UITheme
+extends RefCounted
 
 ## UITheme — Constantes et factory pour le thème dark moderne HouseMaster 3D
 ## Utilisé par tous les composants UI pour un style cohérent
-
-class_name UITheme
 
 # ── Couleurs ──────────────────────────────────────────────
 const BG_DARK := Color("1a1a1a")

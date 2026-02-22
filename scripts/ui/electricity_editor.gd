@@ -172,11 +172,11 @@ func _build_ui() -> void:
 func _on_add_circuit() -> void:
 	if not electricity_ref:
 		return
-	var c_name := circuit_name_input.text if circuit_name_input.text != "" else "Circuit %d" % (electricity_ref.circuits.size() + 1)
-	var c_type := circuit_types[circuit_type.selected]
-	var breaker := breaker_sizes[breaker_selector.selected]
+	var c_name = circuit_name_input.text if circuit_name_input.text != "" else "Circuit %d" % (electricity_ref.circuits.size() + 1)
+	var c_type = circuit_types[circuit_type.selected]
+	var breaker = breaker_sizes[breaker_selector.selected]
 
-	var idx := electricity_ref.add_circuit(c_name, c_type, breaker)
+	var idx = electricity_ref.add_circuit(c_name, c_type, breaker)
 	circuit_selector.add_item(c_name)
 	CIRCUIT_ADDED_REQUEST.emit({"name": c_name, "type": c_type, "breaker": breaker})
 
@@ -184,10 +184,10 @@ func _on_add_circuit() -> void:
 func _on_add_element() -> void:
 	if not electricity_ref:
 		return
-	var e_type := element_types[element_type.selected]
-	var height := element_height.value
-	var circuit_idx := circuit_selector.selected - 1
-	var room := room_selector.get_item_text(room_selector.selected)
+	var e_type = element_types[element_type.selected]
+	var height = element_height.value
+	var circuit_idx = circuit_selector.selected - 1
+	var room = room_selector.get_item_text(room_selector.selected)
 
 	electricity_ref.add_element(e_type, Vector3(1, 0, 1), room, circuit_idx, height)
 	ELEMENT_ADDED_REQUEST.emit({"type": e_type, "room": room})
@@ -196,7 +196,7 @@ func _on_add_element() -> void:
 func _on_show_panel() -> void:
 	if not electricity_ref:
 		return
-	var summary := electricity_ref.get_panel_summary()
+	var summary = electricity_ref.get_panel_summary()
 	panel_summary.clear()
 	panel_summary.append_text("[b][color=#f0ad4e]Tableau électrique[/color][/b]\n")
 	panel_summary.append_text("Disjoncteur principal : %dA\n" % summary["main_breaker"])
@@ -208,7 +208,7 @@ func _on_show_panel() -> void:
 func _on_validate() -> void:
 	if not electricity_ref:
 		return
-	var errors := electricity_ref.validate()
+	var errors = electricity_ref.validate()
 	validation_label.clear()
 	if errors.is_empty():
 		validation_label.append_text("[color=#5cb85c]Installation conforme[/color]")

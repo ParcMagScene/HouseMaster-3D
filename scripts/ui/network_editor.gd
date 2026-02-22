@@ -181,10 +181,10 @@ func _build_ui() -> void:
 func _on_add_point() -> void:
 	if not network_ref:
 		return
-	var type := point_types[point_type.selected]
-	var cable := cable_types[cable_type.selected]
-	var room := room_selector.get_item_text(room_selector.selected)
-	var label_text := label_input.text
+	var type = point_types[point_type.selected]
+	var cable = cable_types[cable_type.selected]
+	var room = room_selector.get_item_text(room_selector.selected)
+	var label_text = label_input.text
 
 	network_ref.add_point(type, Vector3(1, 0.3, 1), room, cable, label_text)
 	POINT_ADDED_REQUEST.emit({"type": type, "room": room})
@@ -193,9 +193,9 @@ func _on_add_point() -> void:
 func _on_add_wifi() -> void:
 	if not network_ref:
 		return
-	var ssid := wifi_ssid.text
-	var band := wifi_bands[wifi_band.selected]
-	var radius := wifi_radius.value
+	var ssid = wifi_ssid.text
+	var band = wifi_bands[wifi_band.selected]
+	var radius = wifi_radius.value
 
 	network_ref.add_wifi_zone(Vector3(5.25, 1.5, 3.35), radius, ssid, band)
 
@@ -210,7 +210,7 @@ func _on_patch_panel_toggled(enabled: bool) -> void:
 func _on_validate() -> void:
 	if not network_ref:
 		return
-	var errors := network_ref.validate()
+	var errors = network_ref.validate()
 	validation_label.clear()
 	if errors.is_empty():
 		validation_label.append_text("[color=#5cb85c]Installation conforme[/color]")
