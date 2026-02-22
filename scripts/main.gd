@@ -21,6 +21,9 @@ const PlumbingEditorScript = preload("res://scripts/ui/plumbing_editor.gd")
 const ElectricityEditorScript = preload("res://scripts/ui/electricity_editor.gd")
 const NetworkEditorScript = preload("res://scripts/ui/network_editor.gd")
 const DomoticsEditorScript = preload("res://scripts/ui/domotics_editor.gd")
+const SimulationPanelScript = preload("res://scripts/ui/simulation_panel.gd")
+const LightingEditorScript = preload("res://scripts/ui/lighting_editor.gd")
+const SimulationManagerScript = preload("res://scripts/simulation/simulation_manager.gd")
 const UIAnimationsScript = preload("res://scripts/ui/ui_animations.gd")
 
 # --- Nœuds principaux ---
@@ -43,6 +46,11 @@ var plumbing_editor: Control = null
 var electricity_editor: Control = null
 var network_editor: Control = null
 var domotics_editor: Control = null
+var simulation_panel: Control = null
+var lighting_editor: Control = null
+
+# --- Simulation ---
+var simulation_manager: Node = null
 
 # --- Éclairage ---
 var sun: DirectionalLight3D = null
@@ -154,6 +162,12 @@ func _setup_systems() -> void:
 	save_manager.setup(house, plumbing, electricity, network, domotics)
 	add_child(save_manager)
 	
+	# Simulation
+	simulation_manager = SimulationManagerScript.new()
+	simulation_manager.name = "SimulationManager"
+	simulation_manager.setup(house, plumbing, electricity, network, domotics)
+	add_child(simulation_manager)
+	
 	print("⚙️ Systèmes initialisés")
 
 
@@ -212,6 +226,20 @@ func _setup_ui() -> void:
 	domotics_editor.position = editor_pos
 	canvas.add_child(domotics_editor)
 	
+	# Panneau simulation (caché par défaut)
+	simulation_panel = SimulationPanelScript.new()
+	simulation_panel.name = "SimulationPanel"
+	simulation_panel.visible = false
+	simulation_panel.position = editor_pos
+	canvas.add_child(simulation_panel)
+	
+	# Éditeur éclairage (caché par défaut)
+	lighting_editor = LightingEditorScript.new()
+	lighting_editor.name = "LightingEditor"
+	lighting_editor.visible = false
+	lighting_editor.position = editor_pos
+	canvas.add_child(lighting_editor)
+	
 	print("🖥️ Interface utilisateur prête")
 
 
@@ -236,6 +264,14 @@ func _connect_signals() -> void:
 	save_manager.SAVE_COMPLETED.connect(func(path): main_ui.add_log("[color=green]Sauvegardé : %s[/color]" % path))
 	save_manager.LOAD_COMPLETED.connect(func(path): main_ui.add_log("[color=green]Chargé : %s[/color]" % path))
 	save_manager.SAVE_ERROR.connect(func(msg): main_ui.add_log("[color=red]Erreur : %s[/color]" % msg))
+	
+	# Simulation -> UI
+	simulation_panel.SIMULATION_RUN_REQUEST.connect(_on_simulation_run)
+	simulation_panel.SIMULATION_RUN_ALL_REQUEST.connect(_on_simulation_run_all)
+	simulation_panel.OPTIMIZATION_REQUEST.connect(_on_optimization_request)
+	simulation_panel.CABLE_ROUTING_REQUEST.connect(_on_cable_routing_request)
+	simulation_manager.SIMULATION_COMPLETED.connect(_on_simulation_completed)
+	simulation_manager.SIMULATION_ERROR.connect(_on_simulation_error)
 
 
 func _setup_grid() -> void:
@@ -280,6 +316,10 @@ func _input(event: InputEvent) -> void:
 				_toggle_editor(network_editor)
 			KEY_F4:
 				_toggle_editor(domotics_editor)
+			KEY_F5:
+				_toggle_editor(simulation_panel)
+			KEY_F6:
+				_toggle_editor(lighting_editor)
 
 
 # --- Callbacks ---
@@ -348,8 +388,39 @@ func _on_object_deselected() -> void:
 	room_editor.visible = false
 
 
+func _on_simulation_run(network_name: String) -> void:
+	simulation_manager.run_simulation(network_name)
+	main_ui.add_log("Simulation '%s' lancée" % network_name)
+
+
+func _on_simulation_run_all() -> void:
+	simulation_manager.run_all_simulations()
+	main_ui.add_log("Simulation globale lancée")
+
+
+func _on_optimization_request(network_name: String) -> void:
+	simulation_manager.run_network_optimization(network_name)
+	main_ui.add_log("Optimisation réseau '%s'" % network_name)
+
+
+func _on_cable_routing_request(network_name: String) -> void:
+	simulation_manager.run_cable_routing(network_name)
+	main_ui.add_log("Routage câbles '%s'" % network_name)
+
+
+func _on_simulation_completed(report: RefCounted) -> void:
+	if report:
+		var summary := report.get_summary_text()
+		main_ui.add_log("[color=green]Simulation terminée[/color] — %s" % summary)
+		simulation_panel.update_report(report)
+
+
+func _on_simulation_error(msg: String) -> void:
+	main_ui.add_log("[color=red]Erreur simulation : %s[/color]" % msg)
+
+
 func _toggle_editor(editor: Control) -> void:
-	var editors := [plumbing_editor, electricity_editor, network_editor, domotics_editor, room_editor]
+	var editors := [plumbing_editor, electricity_editor, network_editor, domotics_editor, room_editor, simulation_panel, lighting_editor]
 	var should_show := not editor.visible
 	
 	# Masquer tous les éditeurs avec animation
